@@ -2,6 +2,7 @@
 
 Модуль создаёт движок, фабрику сессий и функцию инициализации БД.
 """
+
 from collections.abc import Iterator
 from contextlib import contextmanager
 

@@ -3,6 +3,7 @@
 Модели описывают таблицы SQLite согласно ER-диаграмме из ТЗ:
 ученики, преподаватели, кабинеты, занятия, платежи, выплаты.
 """
+
 from datetime import date
 from decimal import Decimal
 
@@ -165,9 +166,7 @@ class Lesson(Base):
     time_start: Mapped[str] = mapped_column(Time, nullable=False)
     time_end: Mapped[str] = mapped_column(Time, nullable=False)
     is_group: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default="planned"
-    )
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="planned")
     cost: Mapped[Decimal] = mapped_column(
         Numeric(10, 2), nullable=False, default=Decimal("0.00")
     )
@@ -220,7 +219,9 @@ class Payment(Base):
 
     def __repr__(self) -> str:
         """Строковое представление платежа."""
-        return f"<Payment id={self.id} student_id={self.student_id} amount={self.amount}>"
+        return (
+            f"<Payment id={self.id} student_id={self.student_id} amount={self.amount}>"
+        )
 
 
 class Payout(Base):
@@ -250,4 +251,6 @@ class Payout(Base):
 
     def __repr__(self) -> str:
         """Строковое представление выплаты."""
-        return f"<Payout id={self.id} teacher_id={self.teacher_id} amount={self.amount}>"
+        return (
+            f"<Payout id={self.id} teacher_id={self.teacher_id} amount={self.amount}>"
+        )
