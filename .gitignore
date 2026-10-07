@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+backups/*.db
+.idea/
+.vscode/
+.pytest_cache/
+.mypy_cache/
+build/
+dist/
+*.exe
