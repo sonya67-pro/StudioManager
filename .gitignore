@@ -5,7 +5,7 @@ venv/
 *.db
 backups/*.db
 .idea/
-.vscode/
+#.vscode/
 .pytest_cache/
 .mypy_cache/
 build/
