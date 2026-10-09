@@ -136,6 +136,8 @@ class MainWindow(tk.Tk):
             self._show_lessons()
         elif name == "Расписание":
             self._show_schedule()
+        elif name == "Финансы":
+            self._show_finance()
         else:
             ttk.Label(
                 self.content,
@@ -177,6 +179,15 @@ class MainWindow(tk.Tk):
 
         session = SessionLocal()
         view = ScheduleView(self.content, session)
+        view.pack(fill="both", expand=True)
+
+    def _show_finance(self) -> None:
+        """Подключает экран «Финансы» с сессией БД."""
+        from src.db.database import SessionLocal
+        from src.ui.views.finance_view import FinanceView
+
+        session = SessionLocal()
+        view = FinanceView(self.content, session)
         view.pack(fill="both", expand=True)
 
 
