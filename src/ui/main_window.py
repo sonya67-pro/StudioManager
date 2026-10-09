@@ -75,12 +75,10 @@ class MainWindow(tk.Tk):
         )
         title.pack(fill="x")
 
-        # Разделитель
         ttk.Separator(self.sidebar, orient="horizontal").pack(
             fill="x", pady=(0, 10)
         )
 
-        # Кнопки навигации
         sections = [
             "Ученики",
             "Преподаватели",
@@ -129,12 +127,24 @@ class MainWindow(tk.Tk):
             style="Header.TLabel",
         ).pack(anchor="w", pady=(0, 20))
 
-        # Заглушка — здесь будет экран раздела
-        ttk.Label(
-            self.content,
-            text=f"Раздел «{name}» в разработке",
-            style="Hint.TLabel",
-        ).pack(anchor="w")
+        # Подключение соответствующего экрана
+        if name == "Ученики":
+            self._show_students()
+        else:
+            ttk.Label(
+                self.content,
+                text=f"Раздел «{name}» в разработке",
+                style="Hint.TLabel",
+            ).pack(anchor="w")
+
+    def _show_students(self) -> None:
+        """Подключает экран «Ученики» с сессией БД."""
+        from src.db.database import SessionLocal
+        from src.ui.views.students_view import StudentsView
+
+        session = SessionLocal()
+        view = StudentsView(self.content, session)
+        view.pack(fill="both", expand=True)
 
 
 def run() -> None:
