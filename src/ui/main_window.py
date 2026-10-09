@@ -132,6 +132,8 @@ class MainWindow(tk.Tk):
             self._show_students()
         elif name == "Преподаватели":
             self._show_teachers()
+        elif name == "Занятия":
+            self._show_lessons()
         else:
             ttk.Label(
                 self.content,
@@ -155,6 +157,15 @@ class MainWindow(tk.Tk):
 
         session = SessionLocal()
         view = TeachersView(self.content, session)
+        view.pack(fill="both", expand=True)
+
+    def _show_lessons(self) -> None:
+        """Подключает экран «Занятия» с сессией БД."""
+        from src.db.database import SessionLocal
+        from src.ui.views.lessons_view import LessonsView
+
+        session = SessionLocal()
+        view = LessonsView(self.content, session)
         view.pack(fill="both", expand=True)
 
 
