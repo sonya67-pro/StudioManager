@@ -62,7 +62,6 @@ class MainWindow(tk.Tk):
         container = ttk.Frame(self)
         container.pack(fill="both", expand=True)
 
-        # Левая панель навигации
         self.sidebar = ttk.Frame(container, width=220, padding=(0, 10))
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
@@ -99,7 +98,6 @@ class MainWindow(tk.Tk):
             btn.pack(fill="x", padx=5, pady=2)
             self.buttons[name] = btn
 
-        # Правая рабочая область
         self.content = ttk.Frame(container, padding=20)
         self.content.pack(side="left", fill="both", expand=True)
 
@@ -107,27 +105,23 @@ class MainWindow(tk.Tk):
         """Показывает экран раздела.
 
         Args:
-            name: Название раздела («Ученики», «Преподаватели» и т.д.).
+            name: Название раздела.
         """
-        # Подсветка активной кнопки
         for section_name, button in self.buttons.items():
             if section_name == name:
                 button.configure(style="SidebarActive.TButton")
             else:
                 button.configure(style="Sidebar.TButton")
 
-        # Очистить рабочую область
         for widget in self.content.winfo_children():
             widget.destroy()
 
-        # Заголовок раздела
         ttk.Label(
             self.content,
             text=name,
             style="Header.TLabel",
         ).pack(anchor="w", pady=(0, 20))
 
-        # Подключение соответствующего экрана
         if name == "Ученики":
             self._show_students()
         elif name == "Преподаватели":
@@ -138,6 +132,8 @@ class MainWindow(tk.Tk):
             self._show_schedule()
         elif name == "Финансы":
             self._show_finance()
+        elif name == "Отчёты":
+            self._show_reports()
         else:
             ttk.Label(
                 self.content,
@@ -188,6 +184,15 @@ class MainWindow(tk.Tk):
 
         session = SessionLocal()
         view = FinanceView(self.content, session)
+        view.pack(fill="both", expand=True)
+
+    def _show_reports(self) -> None:
+        """Подключает экран «Отчёты» с сессией БД."""
+        from src.db.database import SessionLocal
+        from src.ui.views.reports_view import ReportsView
+
+        session = SessionLocal()
+        view = ReportsView(self.content, session)
         view.pack(fill="both", expand=True)
 
 

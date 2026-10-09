@@ -11,3 +11,5 @@ backups/*.db
 build/
 dist/
 *.exe
+# Экспортированные отчёты (не коммитим)
+exports/
