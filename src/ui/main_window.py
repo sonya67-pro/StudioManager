@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from src import config
+from src.auth import CurrentUser
 from src.ui import theme
 
 
@@ -10,29 +11,50 @@ class MainWindow(tk.Tk):
     """Главное окно приложения с боковой панелью навигации.
 
     Attributes:
+        user: Текущий пользователь (роль admin/teacher).
         sidebar: Фрейм с кнопками навигации.
         content: Фрейм, в котором отображается текущий экран.
         buttons: Словарь {название: кнопка} для подсветки активной.
     """
 
-    def __init__(self) -> None:
-        """Инициализирует окно, размеры и тему."""
+    def __init__(self, user: CurrentUser) -> None:
+        """Инициализирует окно, размеры и тему.
+
+        Args:
+            user: Авторизованный пользователь.
+        """
         super().__init__()
-        self.title(f"{config.APP_NAME} v{config.APP_VERSION}")
+        self.user = user
+
+        self.title(
+            f"{config.APP_NAME} v{config.APP_VERSION} — {user.name}"
+        )
         self.geometry("1280x800")
         self.minsize(1024, 700)
 
         theme.apply_theme(self)
 
         self._build_layout()
-        self._show_section("Ученики")
+        available = self._available_sections()
+        self._show_section(available[0])
+
+    def _available_sections(self) -> list[str]:
+        """Возвращает список разделов, доступных пользователю."""
+        all_sections = [
+            "Ученики",
+            "Преподаватели",
+            "Занятия",
+            "Расписание",
+            "Финансы",
+            "Отчёты",
+        ]
+        return [s for s in all_sections if self.user.can_access(s)]
 
     def _build_layout(self) -> None:
         """Создаёт боковую панель и рабочую область."""
         container = ttk.Frame(self)
         container.pack(fill="both", expand=True)
 
-        # ─── Левая панель навигации ─────────────────────────
         self.sidebar = ttk.Frame(
             container, width=220, style="Sidebar.TFrame"
         )
@@ -46,21 +68,19 @@ class MainWindow(tk.Tk):
         )
         title.pack(fill="x")
 
+        user_label = ttk.Label(
+            self.sidebar,
+            text=f"  {self.user.name}",
+            style="Sidebar.TButton",
+        )
+        user_label.pack(fill="x", pady=(0, 10))
+
         ttk.Separator(self.sidebar, orient="horizontal").pack(
             fill="x", pady=(0, 10)
         )
 
-        sections = [
-            "Ученики",
-            "Преподаватели",
-            "Занятия",
-            "Расписание",
-            "Финансы",
-            "Отчёты",
-        ]
-
         self.buttons: dict[str, ttk.Button] = {}
-        for name in sections:
+        for name in self._available_sections():
             btn = ttk.Button(
                 self.sidebar,
                 text=f"  {name}",
@@ -70,7 +90,6 @@ class MainWindow(tk.Tk):
             btn.pack(fill="x", padx=0, pady=1)
             self.buttons[name] = btn
 
-        # ─── Правая рабочая область ─────────────────────────
         self.content = ttk.Frame(container, padding=30)
         self.content.pack(side="left", fill="both", expand=True)
 
@@ -80,6 +99,9 @@ class MainWindow(tk.Tk):
         Args:
             name: Название раздела.
         """
+        if not self.user.can_access(name):
+            return
+
         for section_name, button in self.buttons.items():
             if section_name == name:
                 button.configure(style="SidebarActive.TButton")
@@ -107,12 +129,6 @@ class MainWindow(tk.Tk):
             self._show_finance()
         elif name == "Отчёты":
             self._show_reports()
-        else:
-            ttk.Label(
-                self.content,
-                text=f"Раздел «{name}» в разработке",
-                style="Subheader.TLabel",
-            ).pack(anchor="w")
 
     def _show_students(self) -> None:
         """Подключает экран «Ученики» с сессией БД."""
@@ -170,6 +186,11 @@ class MainWindow(tk.Tk):
 
 
 def run() -> None:
-    """Запускает главное окно."""
-    app = MainWindow()
+    """Запускает главное окно (совместимость)."""
+    from src.auth import authenticate
+
+    user = authenticate("admin", "admin123")
+    if user is None:
+        return
+    app = MainWindow(user=user)
     app.mainloop()
