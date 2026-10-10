@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from src import config
+from src.ui import theme
 
 
 class MainWindow(tk.Tk):
@@ -21,56 +22,27 @@ class MainWindow(tk.Tk):
         self.geometry("1280x800")
         self.minsize(1024, 700)
 
-        self._setup_style()
+        theme.apply_theme(self)
+
         self._build_layout()
         self._show_section("Ученики")
-
-    def _setup_style(self) -> None:
-        """Настраивает стили ttk для единообразного вида."""
-        style = ttk.Style()
-        try:
-            style.theme_use("clam")
-        except tk.TclError:
-            pass
-
-        style.configure(
-            "Sidebar.TButton",
-            font=("Segoe UI", 11),
-            anchor="w",
-            padding=(20, 12),
-            borderwidth=0,
-        )
-        style.configure(
-            "SidebarActive.TButton",
-            font=("Segoe UI", 11, "bold"),
-            anchor="w",
-            padding=(20, 12),
-            borderwidth=0,
-        )
-        style.configure(
-            "Header.TLabel",
-            font=("Segoe UI", 16, "bold"),
-        )
-        style.configure(
-            "Hint.TLabel",
-            font=("Segoe UI", 10),
-            foreground="gray",
-        )
 
     def _build_layout(self) -> None:
         """Создаёт боковую панель и рабочую область."""
         container = ttk.Frame(self)
         container.pack(fill="both", expand=True)
 
-        self.sidebar = ttk.Frame(container, width=220, padding=(0, 10))
+        # ─── Левая панель навигации ─────────────────────────
+        self.sidebar = ttk.Frame(
+            container, width=220, style="Sidebar.TFrame"
+        )
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
 
         title = ttk.Label(
             self.sidebar,
             text="StudioManager",
-            font=("Segoe UI", 14, "bold"),
-            padding=(20, 10),
+            style="SidebarTitle.TLabel",
         )
         title.pack(fill="x")
 
@@ -91,14 +63,15 @@ class MainWindow(tk.Tk):
         for name in sections:
             btn = ttk.Button(
                 self.sidebar,
-                text=name,
+                text=f"  {name}",
                 style="Sidebar.TButton",
                 command=lambda n=name: self._show_section(n),
             )
-            btn.pack(fill="x", padx=5, pady=2)
+            btn.pack(fill="x", padx=0, pady=1)
             self.buttons[name] = btn
 
-        self.content = ttk.Frame(container, padding=20)
+        # ─── Правая рабочая область ─────────────────────────
+        self.content = ttk.Frame(container, padding=30)
         self.content.pack(side="left", fill="both", expand=True)
 
     def _show_section(self, name: str) -> None:
@@ -138,7 +111,7 @@ class MainWindow(tk.Tk):
             ttk.Label(
                 self.content,
                 text=f"Раздел «{name}» в разработке",
-                style="Hint.TLabel",
+                style="Subheader.TLabel",
             ).pack(anchor="w")
 
     def _show_students(self) -> None:
