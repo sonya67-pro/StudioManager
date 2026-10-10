@@ -7,19 +7,13 @@ from sqlalchemy.orm import Session
 from src.repositories.payment_repo import PaymentRepository
 from src.repositories.student_repo import StudentRepository
 from src.services.finance_service import FinanceService
+from src.ui import theme
 from src.ui.dialogs.payment_form import PaymentForm
+from src.ui.widgets import RoundedButton
 
 
 class FinanceView(ttk.Frame):
-    """Экран управления финансами.
-
-    Attributes:
-        session: Сессия SQLAlchemy.
-        payments: Репозиторий платежей.
-        students: Репозиторий учеников.
-        finance: Сервис финансов.
-        tree: Таблица платежей.
-    """
+    """Экран управления финансами."""
 
     def __init__(self, parent: tk.Widget, session: Session) -> None:
         """Инициализирует экран.
@@ -42,15 +36,28 @@ class FinanceView(ttk.Frame):
         top = ttk.Frame(self)
         top.pack(fill="x", pady=(0, 10))
 
-        ttk.Button(top, text="Пополнить баланс", command=self._on_top_up).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Обновить", command=self.refresh).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Должники", command=self._show_debtors).pack(
-            side="left", padx=2
-        )
+        RoundedButton(
+            top, text="Пополнить баланс", command=self._on_top_up,
+            width=180, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Должники", command=self._show_debtors,
+            bg_color=theme.COLORS["warning"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["warning_border"],
+            hover_color=theme.COLORS["warning_border"],
+            width=140, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Обновить", command=self.refresh,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
         columns = ("id", "date", "student", "amount")
         self.tree = ttk.Treeview(
@@ -103,12 +110,10 @@ class FinanceView(ttk.Frame):
             self.refresh()
 
     def _show_debtors(self) -> None:
-        """Показывает список должников (ученики с нулевым балансом)."""
+        """Показывает список должников."""
         debtors = self.finance.get_debtors()
         if not debtors:
-            messagebox.showinfo(
-                "Должники", "Должников нет", parent=self
-            )
+            messagebox.showinfo("Должники", "Должников нет", parent=self)
             return
 
         text = "Список должников:\n\n"

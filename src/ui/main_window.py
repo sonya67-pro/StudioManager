@@ -11,7 +11,7 @@ class MainWindow(tk.Tk):
     """Главное окно приложения с боковой панелью навигации.
 
     Attributes:
-        user: Текущий пользователь (роль admin/teacher).
+        user: Текущий пользователь (роль admin/teacher/student).
         sidebar: Фрейм с кнопками навигации.
         content: Фрейм, в котором отображается текущий экран.
         buttons: Словарь {название: кнопка} для подсветки активной.
@@ -56,7 +56,7 @@ class MainWindow(tk.Tk):
         container.pack(fill="both", expand=True)
 
         self.sidebar = ttk.Frame(
-            container, width=220, style="Sidebar.TFrame"
+            container, width=240, style="Sidebar.TFrame"
         )
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)

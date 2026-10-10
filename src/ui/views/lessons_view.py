@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 
 from src.db.models import Lesson
 from src.repositories.lesson_repo import LessonRepository
+from src.ui import theme
 from src.ui.dialogs.lesson_form import LessonForm
+from src.ui.widgets import RoundedButton
 
 
 class LessonsView(ttk.Frame):
@@ -27,30 +29,59 @@ class LessonsView(ttk.Frame):
         self.refresh()
 
     def _build_ui(self) -> None:
-        """Создаёт таблицу и кнопки."""
+        """Создаёт панель кнопок и таблицу."""
         top = ttk.Frame(self)
         top.pack(fill="x", pady=(0, 10))
 
-        ttk.Button(top, text="Добавить", command=self._on_add).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Редактировать", command=self._on_edit).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Провести", command=self._on_mark_done).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Отменить", command=self._on_cancel).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Удалить", command=self._on_delete).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Обновить", command=self.refresh).pack(
-            side="left", padx=2
-        )
+        RoundedButton(
+            top, text="Добавить", command=self._on_add,
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
-        columns = ("id", "date", "time", "teacher", "room", "group", "cost", "status")
+        RoundedButton(
+            top, text="Редактировать", command=self._on_edit,
+            width=155, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Провести", command=self._on_mark_done,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Отменить", command=self._on_cancel,
+            bg_color=theme.COLORS["warning"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["warning_border"],
+            hover_color=theme.COLORS["warning_border"],
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Удалить", command=self._on_delete,
+            bg_color=theme.COLORS["danger"],
+            border_color=theme.COLORS["danger_hover"],
+            hover_color=theme.COLORS["danger_hover"],
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Обновить", command=self.refresh,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=130, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        columns = (
+            "id", "date", "time", "teacher",
+            "room", "group", "cost", "status",
+        )
         self.tree = ttk.Treeview(
             self, columns=columns, show="headings", selectmode="browse"
         )
@@ -63,13 +94,15 @@ class LessonsView(ttk.Frame):
             ("room", "Кабинет", 140, "w"),
             ("group", "Тип", 90, "center"),
             ("cost", "Стоимость", 100, "e"),
-            ("status", "Статус", 100, "center"),
+            ("status", "Статус", 110, "center"),
         ]
         for col, text, width, anchor in headers:
             self.tree.heading(col, text=text)
             self.tree.column(col, width=width, anchor=anchor)
 
-        scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(
+            self, orient="vertical", command=self.tree.yview
+        )
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -91,6 +124,9 @@ class LessonsView(ttk.Frame):
         for lesson in self.repo.list_all():
             teacher_name = lesson.teacher.full_name if lesson.teacher else "—"
             room_name = lesson.room.name if lesson.room else "—"
+            time_start = lesson.time_start.strftime("%H:%M")
+            time_end = lesson.time_end.strftime("%H:%M")
+
             self.tree.insert(
                 "",
                 "end",
@@ -98,8 +134,7 @@ class LessonsView(ttk.Frame):
                 values=(
                     lesson.id,
                     lesson.date.isoformat(),
-                    f"{lesson.time_start.strftime('%H:%M')}–"
-                    f"{lesson.time_end.strftime('%H:%M')}",
+                    f"{time_start}–{time_end}",
                     teacher_name,
                     room_name,
                     "Групповое" if lesson.is_group else "Индивид.",
@@ -158,7 +193,9 @@ class LessonsView(ttk.Frame):
         if lesson is None:
             return
         if not messagebox.askyesno(
-            "Подтверждение", f"Удалить занятие id={lesson.id}?", parent=self
+            "Подтверждение",
+            f"Удалить занятие id={lesson.id}?",
+            parent=self,
         ):
             return
         try:

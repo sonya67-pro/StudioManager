@@ -6,17 +6,12 @@ from tkinter import messagebox, ttk
 from sqlalchemy.orm import Session
 
 from src.repositories.lesson_repo import LessonRepository
+from src.ui import theme
+from src.ui.widgets import RoundedButton
 
 
 class ScheduleView(ttk.Frame):
-    """Экран расписания кабинетов.
-
-    Attributes:
-        session: Сессия SQLAlchemy.
-        repo: Репозиторий занятий.
-        date_var: Строка с выбранной датой.
-        tree: Таблица занятий.
-    """
+    """Экран расписания кабинетов."""
 
     def __init__(self, parent: tk.Widget, session: Session) -> None:
         """Инициализирует экран.
@@ -37,19 +32,28 @@ class ScheduleView(ttk.Frame):
         top = ttk.Frame(self)
         top.pack(fill="x", pady=(0, 10))
 
-        ttk.Label(top, text="Дата (ГГГГ-ММ-ДД):").pack(side="left")
+        ttk.Label(top, text="Дата (ГГГГ-ММ-ДД):").pack(
+            side="left", padx=(0, 8)
+        )
 
         self.date_var = tk.StringVar(value=date.today().isoformat())
         ttk.Entry(top, textvariable=self.date_var, width=15).pack(
-            side="left", padx=(5, 15)
+            side="left", padx=(0, 15)
         )
 
-        ttk.Button(top, text="Показать", command=self.refresh).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Сегодня", command=self._set_today).pack(
-            side="left", padx=2
-        )
+        RoundedButton(
+            top, text="Показать", command=self.refresh,
+            width=140, height=38, radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top, text="Сегодня", command=self._set_today,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=140, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
         columns = ("time", "room", "teacher", "group", "status")
         self.tree = ttk.Treeview(

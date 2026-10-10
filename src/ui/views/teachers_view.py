@@ -6,18 +6,13 @@ from sqlalchemy.orm import Session
 
 from src.db.models import Teacher
 from src.repositories.teacher_repo import TeacherRepository
+from src.ui import theme
 from src.ui.dialogs.teacher_form import TeacherForm
+from src.ui.widgets import RoundedButton
 
 
 class TeachersView(ttk.Frame):
-    """Экран управления преподавателями.
-
-    Attributes:
-        session: Сессия SQLAlchemy.
-        repo: Репозиторий преподавателей.
-        search_var: Строка поиска.
-        tree: Таблица преподавателей.
-    """
+    """Экран управления преподавателями."""
 
     def __init__(self, parent: tk.Widget, session: Session) -> None:
         """Инициализирует экран.
@@ -38,26 +33,56 @@ class TeachersView(ttk.Frame):
         top = ttk.Frame(self)
         top.pack(fill="x", pady=(0, 10))
 
-        ttk.Label(top, text="Поиск:").pack(side="left")
+        ttk.Label(top, text="Поиск:").pack(side="left", padx=(0, 8))
 
         self.search_var = tk.StringVar()
         self.search_var.trace_add("write", lambda *_: self.refresh())
-        ttk.Entry(top, textvariable=self.search_var, width=30).pack(
-            side="left", padx=(5, 15)
+        ttk.Entry(top, textvariable=self.search_var, width=28).pack(
+            side="left", padx=(0, 15)
         )
 
-        ttk.Button(top, text="Добавить", command=self._on_add).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Редактировать", command=self._on_edit).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Удалить", command=self._on_delete).pack(
-            side="left", padx=2
-        )
-        ttk.Button(top, text="Обновить", command=self.refresh).pack(
-            side="left", padx=2
-        )
+        RoundedButton(
+            top,
+            text="Добавить",
+            command=self._on_add,
+            width=130,
+            height=38,
+            radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top,
+            text="Редактировать",
+            command=self._on_edit,
+            width=155,
+            height=38,
+            radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top,
+            text="Удалить",
+            command=self._on_delete,
+            bg_color=theme.COLORS["danger"],
+            border_color=theme.COLORS["danger_hover"],
+            hover_color=theme.COLORS["danger_hover"],
+            width=130,
+            height=38,
+            radius=12,
+        ).pack(side="left", padx=4)
+
+        RoundedButton(
+            top,
+            text="Обновить",
+            command=self.refresh,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=130,
+            height=38,
+            radius=12,
+        ).pack(side="left", padx=4)
 
         columns = ("id", "name", "rate", "commission")
         self.tree = ttk.Treeview(

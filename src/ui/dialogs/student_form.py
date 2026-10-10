@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.db.models import Student
 from src.repositories.student_repo import StudentRepository
+from src.ui import theme
 
 
 class StudentForm(tk.Toplevel):
@@ -36,7 +37,7 @@ class StudentForm(tk.Toplevel):
         self.result: Student | None = None
 
         self.title("Редактирование ученика" if student else "Новый ученик")
-        self.geometry("420x280")
+        self.geometry("500x480")
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
@@ -46,48 +47,47 @@ class StudentForm(tk.Toplevel):
 
     def _build_ui(self) -> None:
         """Создаёт поля формы."""
-        frame = ttk.Frame(self, padding=20)
+        frame = ttk.Frame(self, padding=30)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text="ФИО:").grid(
-            row=0, column=0, sticky="w", pady=(0, 5)
-        )
+        ttk.Label(
+            frame,
+            text="Редактирование ученика" if self.student else "Новый ученик",
+            style="Header.TLabel",
+        ).pack(pady=(0, 25))
+
+        ttk.Label(frame, text="ФИО:").pack(anchor="w", pady=(0, 6))
         self.name_var = tk.StringVar(
             value=self.student.full_name if self.student else ""
         )
-        ttk.Entry(frame, textvariable=self.name_var, width=40).grid(
-            row=1, column=0, columnspan=2, sticky="ew", pady=(0, 15)
-        )
+        ttk.Entry(frame, textvariable=self.name_var).pack(fill="x", pady=(0, 15))
 
-        ttk.Label(frame, text="Телефон:").grid(
-            row=2, column=0, sticky="w", pady=(0, 5)
-        )
+        ttk.Label(frame, text="Телефон:").pack(anchor="w", pady=(0, 6))
         self.phone_var = tk.StringVar(
             value=(self.student.phone or "") if self.student else ""
         )
-        ttk.Entry(frame, textvariable=self.phone_var, width=40).grid(
-            row=3, column=0, columnspan=2, sticky="ew", pady=(0, 15)
-        )
+        ttk.Entry(frame, textvariable=self.phone_var).pack(fill="x", pady=(0, 15))
 
         if self.student:
-            ttk.Label(frame, text="Баланс:").grid(
-                row=4, column=0, sticky="w", pady=(0, 5)
-            )
+            ttk.Label(frame, text="Баланс:").pack(anchor="w", pady=(0, 6))
             ttk.Label(
                 frame,
                 text=f"{self.student.balance} ₽",
-                font=("Segoe UI", 10, "bold"),
-            ).grid(row=5, column=0, sticky="w", pady=(0, 15))
+                font=(theme.FONT, 14, "bold"),
+                foreground=theme.COLORS["primary_hover"],
+            ).pack(anchor="w", pady=(0, 20))
 
         btn_frame = ttk.Frame(frame)
-        btn_frame.grid(row=6, column=0, columnspan=2, pady=(10, 0), sticky="e")
+        btn_frame.pack(fill="x", pady=(20, 0))
+        btn_inner = ttk.Frame(btn_frame)
+        btn_inner.pack(anchor="center")
 
-        ttk.Button(btn_frame, text="Отмена", command=self.destroy).pack(
-            side="right", padx=(10, 0)
-        )
-        ttk.Button(btn_frame, text="Сохранить", command=self._save).pack(
-            side="right"
-        )
+        ttk.Button(
+            btn_inner, text="Сохранить", command=self._save, width=15
+        ).pack(side="left", padx=8)
+        ttk.Button(
+            btn_inner, text="Отмена", command=self.destroy, width=15
+        ).pack(side="left", padx=8)
 
     def _save(self) -> None:
         """Сохраняет ученика в БД."""
@@ -120,6 +120,10 @@ class StudentForm(tk.Toplevel):
     def _center(self, parent: tk.Widget) -> None:
         """Центрирует диалог относительно родителя."""
         self.update_idletasks()
-        px = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
-        py = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
+        px = parent.winfo_rootx() + (
+            parent.winfo_width() - self.winfo_width()
+        ) // 2
+        py = parent.winfo_rooty() + (
+            parent.winfo_height() - self.winfo_height()
+        ) // 2
         self.geometry(f"+{max(px, 0)}+{max(py, 0)}")

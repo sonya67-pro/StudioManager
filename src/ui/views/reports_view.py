@@ -6,6 +6,8 @@ from tkinter import filedialog, messagebox, ttk
 from sqlalchemy.orm import Session
 
 from src.services.report_service import ReportService
+from src.ui import theme
+from src.ui.widgets import RoundedButton
 
 
 class ReportsView(ttk.Frame):
@@ -32,7 +34,6 @@ class ReportsView(ttk.Frame):
 
     def _build_ui(self) -> None:
         """Создаёт таблицу сводки и кнопки экспорта."""
-        # Таблица сводки
         columns = ("metric", "value")
         self.tree = ttk.Treeview(
             self, columns=columns, show="headings", height=10
@@ -43,33 +44,36 @@ class ReportsView(ttk.Frame):
         self.tree.column("value", width=300, anchor="e")
         self.tree.pack(fill="both", expand=True, pady=(0, 20))
 
-        # Кнопки экспорта
-        btn_frame = ttk.LabelFrame(self, text="Экспорт данных", padding=10)
+        btn_frame = ttk.Frame(self)
         btn_frame.pack(fill="x")
 
-        ttk.Button(
-            btn_frame,
-            text="Ученики → CSV",
-            command=self._export_students_csv,
-        ).pack(side="left", padx=5)
+        RoundedButton(
+            btn_frame, text="Ученики → CSV", command=self._export_students_csv,
+            width=180, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
-        ttk.Button(
-            btn_frame,
-            text="Занятия → CSV",
-            command=self._export_lessons_csv,
-        ).pack(side="left", padx=5)
+        RoundedButton(
+            btn_frame, text="Занятия → CSV", command=self._export_lessons_csv,
+            width=180, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
-        ttk.Button(
-            btn_frame,
-            text="Все данные → JSON",
-            command=self._export_full_json,
-        ).pack(side="left", padx=5)
+        RoundedButton(
+            btn_frame, text="Все данные → JSON", command=self._export_full_json,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=200, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
-        ttk.Button(
-            btn_frame,
-            text="Обновить",
-            command=self.refresh,
-        ).pack(side="left", padx=5)
+        RoundedButton(
+            btn_frame, text="Обновить", command=self.refresh,
+            bg_color=theme.COLORS["accent"],
+            fg_color=theme.COLORS["text"],
+            border_color=theme.COLORS["accent_hover"],
+            hover_color=theme.COLORS["accent_hover"],
+            width=140, height=38, radius=12,
+        ).pack(side="left", padx=4)
 
     def refresh(self) -> None:
         """Обновляет таблицу сводки."""
